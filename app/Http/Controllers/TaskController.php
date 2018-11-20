@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Repositories\TaskRepository;
+use App\Task;
 
 class TaskController extends Controller
 {
@@ -13,9 +14,23 @@ class TaskController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    /**
+     * 任務資源庫的實例。
+     *
+     * @var TaskRepository
+     */
+    protected $tasks;
+
+    /**
+     * 建立新的控制器實例。
+     *
+     * @param  TaskRepository  $tasks
+     * @return void
+     */
+    public function __construct(TaskRepository $tasks)
     {
         $this->middleware('auth');
+        $this->tasks = $tasks;
     }
 
     /**
@@ -26,7 +41,10 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        return view('tasks.index');
+        $tasks = Task::where('user_id', $request->user()->id)->get();
+        return view('tasks.index', [
+            'tasks' => $tasks,
+        ]);
     }
 
     /**
@@ -47,5 +65,4 @@ class TaskController extends Controller
 
         return redirect('/tasks');
     }
-
 }
